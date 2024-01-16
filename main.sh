@@ -38,7 +38,7 @@ function copy_files_from_unzipped() {
     echo "Copy files from $unzipped_script_dir to $target_script_dir ..."
     if [[ ! -e $target_script_dir ]]; then mkdir -p $target_script_dir; fi
 
-    cp -r $unzipped_script_dir/languages $target_script_dir
+    cp -r $unzipped_script_dir/languages                    $target_script_dir
 
     mkdir -p $target_script_dir/map
     cp -r $unzipped_script_dir/map/levels                   $target_script_dir/map
@@ -75,9 +75,9 @@ function copy_files_from_unzipped() {
 function copy_lua_files_from_repo() {
     echo "Copy lua files from repo to $target_script_dir ..."
 
-    cp "$repo_root"/mock/map/*.lua $target_script_dir/map
-    cp "$repo_root"/mock/*.lua $target_script_dir
-    cp "$repo_root"/main.lua $target_script_dir
+    cp "$repo_root"/mock/map/*.lua                          $target_script_dir/map
+    cp "$repo_root"/mock/*.lua                              $target_script_dir
+    cp "$repo_root"/main.lua                                $target_script_dir
 }
 
 unzip_script_file
