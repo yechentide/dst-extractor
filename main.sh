@@ -1,45 +1,91 @@
 #!/usr/bin/env bash
 set -eu
 
-declare -r script_zip_path='/home/tide/Desktop/backup/scripts.zip'
-declare -r script_dir='/tmp/scripts'
-declare -r work_dir='/tmp/worldgen-parser'
+repo_root=$(cd "$(dirname "$0")"; pwd)
+declare -r repo_root
 
-function prepare() {
-  if [[ -e /tmp/scripts ]]; then
-    echo '/tmp/scripts already exists.'
-  else
-    echo "unzip $script_zip_path to /tmp ..."
-    unzip -q -d /tmp $script_zip_path
-  fi
+# path to scripts.zip in the DST server directory
+declare -r script_zip_file="$1"
 
-  if [[ -e $work_dir ]]; then rm -rf $work_dir; fi
-  mkdir $work_dir
+if [[ $# == 2 ]]; then
+    output_dir="$2"
+else
+    output_dir="$repo_root/output"
+    echo "Using default output dir: $output_dir"
+fi
+declare -r output_dir
+if [[ ! -e "$output_dir" ]]; then
+    mkdir -p "$output_dir"
+fi
 
-  cp -r $script_dir/languages $work_dir
-  cp $script_dir/speech* $work_dir
-  cp $script_dir/skin_strings.lua $work_dir
-  cp $script_dir/strings.lua $work_dir
-  cp $script_dir/worldsettings_overrides.lua $work_dir
+declare -r work_dir='/tmp/dst-worldgen-cache'
+declare -r unzipped_script_dir="$work_dir/scripts"
+declare -r target_script_dir="$work_dir/target"
 
-  if [[ ! -e $work_dir/map ]]; then mkdir $work_dir/map; fi
-  cp -r $script_dir/map/tasksets $work_dir/map/tasksets
-  cp $script_dir/map/levels.lua $work_dir/map/levels.lua
-  cp $script_dir/map/startlocations.lua $work_dir/map/startlocations.lua
-  cp $script_dir/map/tasksets.lua $work_dir/map/tasksets.lua
-  
-  echo 'return {}' > $work_dir/map/tasks.lua
-  echo 'return {}' > $work_dir/map/levels.lua
+########## ########## ########## ########## ########## ##########
 
-  cp $script_dir/map/customize.lua $work_dir/customize.lua
-  declare -r start_line=$(sed -n '/^local MOD_WORLDSETTINGS_MISC = {}/=' $work_dir/customize.lua)
-  sed -i -e $start_line',$d' $work_dir/customize.lua
-  sed -i -e '$a return { WORLDGEN_GROUP = WORLDGEN_GROUP, WORLDSETTINGS_GROUP = WORLDSETTINGS_GROUP }' $work_dir/customize.lua
+function unzip_script_file() {
+    if [[ -e $work_dir ]]; then
+        rm -rf $work_dir > /dev/null 2>&1
+    fi
 
-  cp ./*.lua $work_dir
+    echo "Unzip $script_zip_file to $work_dir ..."
+    mkdir -p $work_dir
+    unzip -q -d $work_dir "$script_zip_file"
 }
 
-# prepare
+function copy_files_from_unzipped() {
+    echo "Copy files from $unzipped_script_dir to $target_script_dir ..."
+    if [[ ! -e $target_script_dir ]]; then mkdir -p $target_script_dir; fi
 
-cd $work_dir
-lua ./parse.lua
+    cp -r $unzipped_script_dir/languages $target_script_dir
+
+    mkdir -p $target_script_dir/map
+    cp -r $unzipped_script_dir/map/levels                   $target_script_dir/map
+    cp -r $unzipped_script_dir/map/tasksets                 $target_script_dir/map
+    cp $unzipped_script_dir/map/customize.lua               $target_script_dir/map
+    cp $unzipped_script_dir/map/level.lua                   $target_script_dir/map
+    cp $unzipped_script_dir/map/levels.lua                  $target_script_dir/map
+    cp $unzipped_script_dir/map/locations.lua               $target_script_dir/map
+    cp $unzipped_script_dir/map/resource_substitution.lua   $target_script_dir/map
+    cp $unzipped_script_dir/map/settings.lua                $target_script_dir/map
+    cp $unzipped_script_dir/map/startlocations.lua          $target_script_dir/map
+    cp $unzipped_script_dir/map/tasksets.lua                $target_script_dir/map
+
+    cp $unzipped_script_dir/constants.lua                   $target_script_dir
+    cp $unzipped_script_dir/strings.lua                     $target_script_dir
+
+    cp $unzipped_script_dir/class.lua                       $target_script_dir
+    cp $unzipped_script_dir/strict.lua                      $target_script_dir
+    cp $unzipped_script_dir/translator.lua                  $target_script_dir
+
+    cp $unzipped_script_dir/speech_*.lua                    $target_script_dir
+    cp $unzipped_script_dir/beefalo_clothing.lua            $target_script_dir
+    cp $unzipped_script_dir/clothing.lua                    $target_script_dir
+    cp $unzipped_script_dir/emote_items.lua                 $target_script_dir
+    cp $unzipped_script_dir/item_blacklist.lua              $target_script_dir
+    cp $unzipped_script_dir/misc_items.lua                  $target_script_dir
+    cp $unzipped_script_dir/prefabskins.lua                 $target_script_dir
+    cp $unzipped_script_dir/skin_strings.lua                $target_script_dir
+    cp $unzipped_script_dir/techtree.lua                    $target_script_dir
+    cp $unzipped_script_dir/tuning.lua                      $target_script_dir
+    cp $unzipped_script_dir/worldsettings_overrides.lua     $target_script_dir
+}
+
+function copy_lua_files_from_repo() {
+    echo "Copy lua files from repo to $target_script_dir ..."
+
+    cp "$repo_root"/mock/map/*.lua $target_script_dir/map
+    cp "$repo_root"/mock/*.lua $target_script_dir
+    cp "$repo_root"/main.lua $target_script_dir
+}
+
+unzip_script_file
+copy_files_from_unzipped
+copy_lua_files_from_repo
+
+cd $target_script_dir
+lua ./main.lua "$target_script_dir/languages" "$output_dir"
+
+echo ''
+echo "Done!"
