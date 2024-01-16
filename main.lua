@@ -176,8 +176,8 @@ function GenerateJsonFilesForLanguage(langCode)
     }
 
     for _, v in ipairs(variation) do
-        local isMasterStr = v.isMasterWorld and "master" or ""
-        local path = outputDir.."/"..langCode.."."..v.location.."."..isMasterStr..".json"
+        local isMasterStr = v.isMasterWorld and ".master" or ""
+        local path = outputDir.."/"..langCode.."."..v.location..isMasterStr..".json"
         local jsonData = GenerateClusterJson(v.location, v.isMasterWorld, langCode)
         WriteToFile(path, jsonData)
     end
