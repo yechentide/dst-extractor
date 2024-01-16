@@ -1,5 +1,14 @@
 {
+  "editor.tabSize": 4,
   "Lua.diagnostics.globals": [
     "STRINGS",
+    "deepcopy",
+    "global",
+    "moderror",
+    "resolvefilepath",
+    "shallowcopy",
+    "LanguageTranslator",
+    "TranslateStringTable",
+    "LEVELCATEGORY",
   ]
 }
