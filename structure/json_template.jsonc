@@ -1,0 +1,34 @@
+{
+    "version": "12345",
+    "lang_code": "ja",
+    "worldgen_group": [
+        {
+            "name": "global",
+            "label": "グローバル",
+            "items": [
+                {
+                    "name": "season_start",
+                    "label": "最初の季節",
+                    "default": "default",
+                    "options": [
+                        { "value": "default", "label": "秋" },
+                        { "value": "winter",  "label": "冬" },
+                        { "value": "spring",  "label": "春" },
+                        { "value": "summer",  "label": "夏" }
+                    ],
+                    "widget_type": "optionsspinner",
+                    "image": "season_start.tex",
+                    "atlas": "xxxxxxxxxx.xml",
+                    "options_remap": /*nullable*/ {
+                        "img": "blank_season_red.tex",
+                        "atlas": "images/customisation.xml"
+                    }
+                }
+            ]
+        },
+        {}
+    ],
+    "worldsettings_group": [],
+    "worldgen_misc": [],
+    "worldsettings_misc": []
+}
