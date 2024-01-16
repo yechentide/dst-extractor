@@ -85,7 +85,11 @@ copy_files_from_unzipped
 copy_lua_files_from_repo
 
 cd $target_script_dir
-lua ./main.lua "$target_script_dir/languages" "$output_dir"
+if which luajit > /dev/null 2>&1; then
+    luajit ./main.lua "$target_script_dir/languages" "$output_dir"
+else
+    lua ./main.lua "$target_script_dir/languages" "$output_dir"
+fi
 
 echo ''
 echo "Done!"
