@@ -1,6 +1,8 @@
 {
     "version": "12345",
-    "lang_code": "ja",
+    "language": "ja",
+    "location": "forest",
+    "is_master": true,
     "worldgen_group": [
         {
             "name": "global",

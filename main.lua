@@ -1,7 +1,7 @@
 -- Use `sumneko.lua` VSCode extension to see type hints
 
 if #arg < 2 then
-    print("Usage: main.lua <lang_dir> <output_dir>")
+    print("Usage: main.lua <output_dir> <server_version>")
     os.exit(1)
 end
 
@@ -13,8 +13,8 @@ require("constants")
 require("class")
 require("tuning")
 
-local langDir = arg[1]
-local outputDir = arg[2]
+local outputDir = arg[1]
+local serverVersion = arg[2]
 
 local customize = require("map/customize")
 local unitIndent = "    "
@@ -37,7 +37,8 @@ local localizations = {
 ---@param data any
 ---@param indentLv number
 ---@param inArray boolean?
-function ToJson(data, indentLv, inArray)
+---@return string json string in json format
+function ItemToJson(data, indentLv, inArray)
     if type(data) == "function" or type(data) == "thread" or type(data) =="userdata" then
         print("Unsupported data: "..type(data))
         os.exit(1)
@@ -54,24 +55,24 @@ function ToJson(data, indentLv, inArray)
         return indent..tostring(data)
     end
     if type(data) == "string" then
-        return indent.."\""..data.."\""
+        return indent.."\""..string.gsub(data, "\n", "\\n").."\""
     end
     
     local contents = {}
     if data[1] ~= nil then
         for _, value in ipairs(data) do
-            contents[#contents+1] = ToJson(value, indentLv+1, true)
+            contents[#contents+1] = ItemToJson(value, indentLv+1, true)
         end
         return "[\n"..table.concat(contents, ",\n").."\n"..indent.."]"
     end
 
     for key, value in pairs(data) do
-        local keyJson = ToJson(key, indentLv+1)
+        local keyJson = ItemToJson(key, indentLv+1)
         local valueJson = ""
         if type(value) == "table" then
-            valueJson = ToJson(value, indentLv+1)
+            valueJson = ItemToJson(value, indentLv+1)
         else
-            valueJson = ToJson(value, 0)
+            valueJson = ItemToJson(value, 0)
         end
         contents[#contents+1] = keyJson..": "..valueJson
     end
@@ -81,11 +82,32 @@ function ToJson(data, indentLv, inArray)
     return "{\n"..table.concat(contents, ",\n").."\n"..indent.."}"
 end
 
---- 
----@param masterGroupData table result of functions GetWorld???Options???() from customize.lua
+function Split(text, separator)
+    local sep, fields = separator or ":", {}
+    local pattern = string.format("([^%s]+)", sep)
+    local tmp = string.gsub(text, pattern, function(c) fields[#fields+1] = c end)
+    return fields
+end
+
+---@param key string key like "STRINGS.UI.CUSTOMIZATIONSCREEN.SEASON_START"
+function GetLocalizedString(key)
+    local localized = STRINGS
+    local elems = Split(key, ".")
+    for _, elem in ipairs(elems) do
+        if elem ~= "STRINGS" then
+            localized = localized[elem]
+        end
+    end
+    if type(localized) == "string" then
+        return localized
+    end
+    return ""
+end
+
+---@param itemDataList table result of functions GetWorld???Options???() from customize.lua
 ---@param initIndextLv number indent level
 ---@return string Json json data of a master group
-function GenerateMasterGroupJson(masterGroupData, initIndextLv)
+function GenerateMasterGroupJson(itemDataList, initIndextLv)
     local itemJsonList = {}             ---@type string[]
     local groupJsonList = {}            ---@type string[]
     local currentGroupID = nil          ---@type string?
@@ -111,11 +133,14 @@ function GenerateMasterGroupJson(masterGroupData, initIndextLv)
         itemJsonList = {}
     end
 
-    for _, item in ipairs(masterGroupData) do
+    for _, item in ipairs(itemDataList) do
         if item.group ~= currentGroupID then
             startNextGroup(item.group, item.grouplabel, initIndextLv+1)
         end
-        itemJsonList[#itemJsonList+1] = ToJson(item, 4, true)
+        item.group = nil
+        item.grouplabel = nil
+        item.label = GetLocalizedString("STRINGS.UI.CUSTOMIZATIONSCREEN."..string.upper(item.name))
+        itemJsonList[#itemJsonList+1] = ItemToJson(item, 4, true)
     end
     local indent = string.rep(unitIndent, initIndextLv)
     return "[\n"..table.concat(groupJsonList, ",\n").."\n"..indent.."]"
@@ -131,9 +156,8 @@ end
 ---@param location LocationType
 ---@param isMasterWorld boolean
 ---@param langCode string?
----@param version string?
 ---@return string Json json data of target location
-function GenerateClusterJson(location, isMasterWorld, langCode, version)
+function GenerateClusterJson(location, isMasterWorld, langCode)
     local gen = customize.GetWorldGenOptions(location, isMasterWorld)
     local set = customize.GetWorldSettingsOptions(location, isMasterWorld)
 
@@ -143,14 +167,14 @@ function GenerateClusterJson(location, isMasterWorld, langCode, version)
     }
 
     local json = "{\n"
-    if langCode ~= nil then
-        json = json..unitIndent.."\"lang\": \""..langCode.."\",\n"
+    if serverVersion ~= nil and serverVersion ~= "" then
+        json = json..unitIndent.."\"version\": \""..serverVersion.."\",\n"
     end
-    if version ~= nil then
-        json = json..unitIndent.."\"version\": \""..version.."\",\n"
+    if langCode ~= nil then
+        json = json..unitIndent.."\"language\": \""..langCode.."\",\n"
     end
     json = json..unitIndent.."\"location\": \""..location.."\",\n"
-    json = json..unitIndent.."\"is_master_world\": "..tostring(isMasterWorld)..",\n"
+    json = json..unitIndent.."\"is_master\": "..tostring(isMasterWorld)..",\n"
     json = json..table.concat(masterGroupJsonList, ",\n").."\n"
     json = json.."}\n"
     return json
@@ -185,8 +209,8 @@ end
 
 require("translator")
 
-function ChangeLanguage(langDir, poFileName, langCode)
-    local filePath = langDir.."/"..poFileName
+function ChangeLanguage(poFileName, langCode)
+    local filePath = "./languages/"..poFileName
     LanguageTranslator:LoadPOFile(filePath, langCode)
     TranslateStringTable(STRINGS)
 end
@@ -194,7 +218,7 @@ end
 function GenerateJsonFilesForAllLanguages()
     GenerateJsonFilesForLanguage("en")
     for _, lang in ipairs(localizations) do
-        ChangeLanguage(langDir, lang.file, lang.code)
+        ChangeLanguage(lang.file, lang.code)
         package.loaded["map/customize"] = nil
         customize = require("map/customize")
 
