@@ -10,5 +10,6 @@
     "LanguageTranslator",
     "TranslateStringTable",
     "LEVELCATEGORY",
+    "UnitIndent"
   ]
 }
