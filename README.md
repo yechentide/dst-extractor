@@ -11,8 +11,8 @@ git clone https://github.com/PNCommand/dst-worldgen.git
 cd dst-worldgen
 chmod u+x ./main.sh
 
-# ./main.sh "/{path_to_dst_server_dir}/data/databundles/scripts.zip" "path_to_output_folder"
-./main.sh /root/server/data/databundles/scripts.zip /tmp/output
+# ./main.sh "/{path_to_dst_server_dir}" "path_to_output_folder"
+./main.sh /root/server /tmp/output
 
 # path_to_output_folder/
 #     en.forest.master.json
@@ -32,8 +32,8 @@ git clone https://github.com/PNCommand/dst-worldgen.git
 cd dst-worldgen
 chmod u+x ./main.sh
 
-# ./main.sh "/{到DST服务端文件夹的路径}/data/databundles/scripts.zip" "输出文件夹的路径"
-./main.sh /root/server/data/databundles/scripts.zip /tmp/output
+# ./main.sh "/{到DST服务端文件夹的路径}" "输出文件夹的路径"
+./main.sh /root/server /tmp/output
 
 # 输出文件夹的路径/
 #     zh-CN.forest.master.json
@@ -53,8 +53,8 @@ git clone https://github.com/PNCommand/dst-worldgen.git
 cd dst-worldgen
 chmod u+x ./main.sh
 
-# ./main.sh "/{DSTサーバディレクトリへのパス}/data/databundles/scripts.zip" "出力フォルダへのパス"
-./main.sh /root/server/data/databundles/scripts.zip /tmp/output
+# ./main.sh "/{DSTサーバディレクトリへのパス}" "出力フォルダへのパス"
+./main.sh /root/server /tmp/output
 
 # 出力フォルダへのパス/
 #     ja.forest.master.json
