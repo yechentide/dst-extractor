@@ -44,7 +44,7 @@ function ItemToJson(data, indentLv, inArray)
         os.exit(1)
     end
     local indent = string.rep(unitIndent, indentLv)
-    
+
     if type(data) == nil then
         return indent.."null"
     end
@@ -57,7 +57,7 @@ function ItemToJson(data, indentLv, inArray)
     if type(data) == "string" then
         return indent.."\""..string.gsub(data, "\n", "\\n").."\""
     end
-    
+
     local contents = {}
     if data[1] ~= nil then
         for _, value in ipairs(data) do
@@ -116,7 +116,7 @@ function GenerateMasterGroupJson(itemDataList, initIndextLv)
     local function startNextGroup(nextGroupID, nextGroupLabel, indentLv)
         local indent = string.rep(unitIndent, indentLv)
         local nextLvIndex = indent..unitIndent
-    
+
         if #itemJsonList > 0 then
             local groupJson = indent.."{\n"
             groupJson = groupJson..nextLvIndex.."\"name\": \""..currentGroupID.."\",\n"
@@ -127,7 +127,7 @@ function GenerateMasterGroupJson(itemDataList, initIndextLv)
             groupJson = groupJson..indent.."}"
             groupJsonList[#groupJsonList+1] = groupJson
         end
-    
+
         currentGroupID = nextGroupID
         currentGroupLabel = nextGroupLabel
         itemJsonList = {}

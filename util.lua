@@ -7,7 +7,7 @@ function table.contains(table, element)
 
     for _, value in pairs(table) do
         if value == element then
-          return true
+            return true
         end
     end
     return false
@@ -29,13 +29,13 @@ function FunctionOrValue(func_or_val, ...)
 end
 
 function GetTableSize(table)
-	local numItems = 0
-	if table ~= nil then
-		for k,v in pairs(table) do
-		    numItems = numItems + 1
-		end
-	end
-	return numItems
+    local numItems = 0
+    if table ~= nil then
+        for k, v in pairs(table) do
+            numItems = numItems + 1
+        end
+    end
+    return numItems
 end
 
 function deepcopy(object)
@@ -76,8 +76,8 @@ end
 
 function MergeMapsDeep(...)
     local keys = {}
-    for i,map in ipairs({...}) do
-        for k,v in pairs(map) do
+    for i, map in ipairs({ ... }) do
+        for k, v in pairs(map) do
             if keys[k] == nil then
                 keys[k] = type(v)
             else
@@ -87,17 +87,17 @@ function MergeMapsDeep(...)
     end
 
     local ret = {}
-    for k,t in pairs(keys) do
+    for k, t in pairs(keys) do
         if t == "table" then
             local subtables = {}
-            for i,map in ipairs({...}) do
+            for i, map in ipairs({ ... }) do
                 if map[k] ~= nil then
                     table.insert(subtables, map[k])
                 end
             end
             ret[k] = MergeMapsDeep(unpack(subtables))
         else
-            for i,map in ipairs({...}) do
+            for i, map in ipairs({ ... }) do
                 if map[k] ~= nil then
                     ret[k] = map[k]
                 end
@@ -115,16 +115,16 @@ function GetRandomItem(choices)
         return
     end
 
- 	local choice = math.random(numChoices) -1
+    local choice = math.random(numChoices) - 1
 
- 	local picked = nil
- 	for k,v in pairs(choices) do
- 		picked = v
- 		if choice<= 0 then
- 			break
- 		end
- 		choice = choice -1
- 	end
- 	assert(picked~=nil)
-	return picked
+    local picked = nil
+    for k, v in pairs(choices) do
+        picked = v
+        if choice <= 0 then
+            break
+        end
+        choice = choice - 1
+    end
+    assert(picked ~= nil)
+    return picked
 end
