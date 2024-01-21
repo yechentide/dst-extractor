@@ -94,9 +94,9 @@ function parse() {
     declare -r version=$(check_server_version)
     cd $work_dir
     if which luajit > /dev/null 2>&1; then
-        luajit ./main.lua "$work_dir/languages" "$output_dir" "$version"
+        luajit ./main.lua "$output_dir" "$version"
     else
-        lua ./main.lua "$work_dir/languages" "$output_dir" "$version"
+        lua ./main.lua "$output_dir" "$version"
     fi
 }
 
