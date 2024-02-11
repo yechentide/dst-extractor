@@ -10,7 +10,7 @@ function ItemToJson(data, indentLv, inArray)
         print("Unsupported data: "..type(data))
         os.exit(1)
     end
-    local indent = string.rep(UnitIndent, indentLv)
+    local indent = UnitIndent:rep(indentLv)
 
     if type(data) == nil then
         return indent.."null"
@@ -22,7 +22,7 @@ function ItemToJson(data, indentLv, inArray)
         return indent..tostring(data)
     end
     if type(data) == "string" then
-        return indent.."\""..string.gsub(data, "\n", "\\n").."\""
+        return indent.."\""..data:gsub("\n", "\\n").."\""
     end
 
     local contents = {}
@@ -47,22 +47,4 @@ function ItemToJson(data, indentLv, inArray)
         return indent.."{\n"..table.concat(contents, ",\n").."\n"..indent.."}"
     end
     return "{\n"..table.concat(contents, ",\n").."\n"..indent.."}"
-end
-
-function Split(text, separator)
-    local sep, fields = separator or ":", {}
-    local pattern = string.format("([^%s]+)", sep)
-    local tmp = string.gsub(text, pattern, function(c) fields[#fields+1] = c end)
-    return fields
-end
-
-function WriteToFile(path, jsonData)
-    local output = io.open(path, "w+")
-    if output == nil then
-        print("Failed to open "..path)
-        os.exit(1)
-        return
-    end
-    output:write(jsonData)
-    output:close()
 end
