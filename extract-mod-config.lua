@@ -1,5 +1,5 @@
 if #arg == 0 then
-    print("Usage: lua extract-mod-config.lua ${path_to_target_mod_dir} <output_dir_path> <lang_code>")
+    print("Usage: lua extract-mod-config.lua ${path_to_target_mod_dir} <lang_code> <output_dir_path>")
     os.exit(1)
 end
 
@@ -18,8 +18,8 @@ local targetModDirPath = arg[1]
 local modInfoPath = targetModDirPath.."/modinfo.lua"
 
 local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
-local outputDirPath = arg[2] or currentDirPath.."/output"
-locale = arg[3] or "en"
+local outputDirPath = arg[3] or currentDirPath.."/output/modconfig"
+locale = arg[2] or "en"
 
 if not FileExists(modInfoPath, false) then
     print("Mod info not found in "..modInfoPath)
@@ -27,6 +27,11 @@ if not FileExists(modInfoPath, false) then
 end
 if not FileExists(currentDirPath.."/extract-mod-config.lua", false) then
     print("This script must be executed from working directory")
+    os.exit(1)
+end
+local ok = MakeDir(outputDirPath, false)
+if not ok then
+    print("Failed to create output directory in "..outputDirPath)
     os.exit(1)
 end
 
@@ -59,3 +64,6 @@ local modInfo = {
 local outputFilePath = outputDirPath.."/"..locale.."."..modID..".json"
 local jsonStr = ItemToJson(modInfo, 0)
 WriteToFile(outputFilePath, jsonStr)
+
+print("Completed!")
+print("Output directory: "..outputDirPath)

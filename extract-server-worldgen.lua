@@ -20,10 +20,7 @@ local scriptZipPath = serverRootPath.."/data/databundles/scripts.zip"
 local versionFilePath = serverRootPath.."/version.txt"
 
 local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
-local outputDirPath = currentDirPath.."/output"
-if #arg >= 2 then
-    outputDirPath = arg[2]
-end
+local outputDirPath = arg[2] or currentDirPath.."/output/worldgen"
 
 local tmpDirPath = "/tmp/dst-extract"
 local workDirPath = tmpDirPath.."/server-worldgen"
@@ -289,7 +286,7 @@ end
 require("translator")
 
 local function changeLanguage(poFileName, langCode)
-    local filePath = "./languages/"..poFileName
+    local filePath = workDirPath.."/languages/"..poFileName
     LanguageTranslator:LoadPOFile(filePath, langCode)
     TranslateStringTable(STRINGS)
 end
@@ -306,3 +303,6 @@ local function generateJsonFilesForAllLanguages()
     end
 end
 generateJsonFilesForAllLanguages()
+
+print("Completed!")
+print("Output directory: "..outputDirPath)
