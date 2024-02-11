@@ -31,7 +31,7 @@ local workDirPath = tmpDirPath.."/server-worldgen"
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
 
-local function checkExecutednLocation()
+local function checkExecutedLocation()
     if FileExists(currentDirPath.."/extract-server-worldgen.lua", false) then
         return
     end
@@ -148,7 +148,7 @@ local function getServerVersion()
     return version
 end
 
-checkExecutednLocation()
+checkExecutedLocation()
 checkFileExistence()
 makeDirectories()
 unzipFile()
