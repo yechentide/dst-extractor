@@ -1,0 +1,28 @@
+{
+    "id": "351325790",
+    "name": "Geometric Placement",
+    "author": "rezecib",
+    "description": "......",
+    "version": "3.2.0",
+    "configuration_options": [
+        {
+            "name": "CTRL",
+            "label": "CTRL Turns Mod",
+            "hover": "......", /*nullable*/
+            "default": false,
+            "options": [
+                {
+                    "data": true,
+                    "description": "......",
+                    "hover": "......" /*nullable*/
+                },
+                {
+                    // ......
+                }
+            ]
+        },
+        {
+            // ......
+        }
+    ]
+}

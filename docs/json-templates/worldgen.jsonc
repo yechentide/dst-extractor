@@ -1,5 +1,5 @@
 {
-    "version": "12345",
+    "version": "588693",
     "language": "ja",
     "location": "forest",
     "is_master": true,
@@ -30,7 +30,9 @@
         },
         {}
     ],
-    "worldsettings_group": [],
-    "worldgen_misc": [],
-    "worldsettings_misc": []
+    "worldsettings_group": [
+        // same structure as above
+    ]
+    // "worldgen_misc": [],
+    // "worldsettings_misc": []
 }
