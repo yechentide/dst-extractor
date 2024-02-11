@@ -76,7 +76,9 @@ function copy_files_from_unzipped() {
 function copy_lua_files_from_repo() {
     echo "Copy lua files from repo to $work_dir ..."
 
-    cp "$repo_root"/map/*.lua                       $work_dir/map
+    cp "$repo_root"/mocks/map/*.lua                 $work_dir/map
+    cp "$repo_root"/mocks/*.lua                     $work_dir
+    cp "$repo_root"/utils/*.lua                     $work_dir
     cp "$repo_root"/*.lua                           $work_dir
 }
 
