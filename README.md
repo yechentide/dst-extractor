@@ -7,12 +7,9 @@ Based on the combination of world type (forest/cave) and whether it's the main w
 To execute the script, `unzip` and `lua` (or `luajit`) are required.
 
 ```bash
-git clone https://github.com/PNCommand/dst-worldgen.git
-cd dst-worldgen
-chmod u+x ./main.sh
-
-# ./main.sh "/{path_to_dst_server_dir}" "path_to_output_folder"
-./main.sh /root/server /tmp/output
+# lua extract-server-worldgen.lua ${path_to_dst_server_dir}
+# lua extract-server-worldgen.lua ${path_to_dst_server_dir} ${path_to_output_folder}
+lua extract-server-worldgen.lua /root/server /tmp/output
 
 # path_to_output_folder/
 #     en.forest.master.json
@@ -28,12 +25,9 @@ chmod u+x ./main.sh
 执行脚本需要`unzip`和`lua` (或者`luajit`)。
 
 ```bash
-git clone https://github.com/PNCommand/dst-worldgen.git
-cd dst-worldgen
-chmod u+x ./main.sh
-
-# ./main.sh "/{到DST服务端文件夹的路径}" "输出文件夹的路径"
-./main.sh /root/server /tmp/output
+# lua extract-server-worldgen.lua ${到DST服务端文件夹的路径}
+# lua extract-server-worldgen.lua ${到DST服务端文件夹的路径} ${输出文件夹的路径}
+lua extract-server-worldgen.lua /root/server /tmp/output
 
 # 输出文件夹的路径/
 #     zh-CN.forest.master.json
@@ -49,12 +43,9 @@ chmod u+x ./main.sh
 スクリプトを実行するには`unzip`と`lua` (または`luajit`) が必要です。
 
 ```bash
-git clone https://github.com/PNCommand/dst-worldgen.git
-cd dst-worldgen
-chmod u+x ./main.sh
-
-# ./main.sh "/{DSTサーバディレクトリへのパス}" "出力フォルダへのパス"
-./main.sh /root/server /tmp/output
+# lua extract-server-worldgen.lua ${DSTサーバディレクトリへのパス}
+# lua extract-server-worldgen.lua ${DSTサーバディレクトリへのパス} ${出力フォルダへのパス}
+lua extract-server-worldgen.lua /root/server /tmp/output
 
 # 出力フォルダへのパス/
 #     ja.forest.master.json
