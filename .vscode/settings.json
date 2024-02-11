@@ -11,6 +11,7 @@
     "TranslateStringTable",
     "LEVELCATEGORY",
     "UnitIndent",
-    "locale"
+    "locale",
+    "folder_name"
   ]
 }
