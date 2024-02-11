@@ -13,10 +13,10 @@
                     "label": "最初の季節",
                     "default": "default",
                     "options": [
-                        { "value": "default", "label": "秋" },
-                        { "value": "winter",  "label": "冬" },
-                        { "value": "spring",  "label": "春" },
-                        { "value": "summer",  "label": "夏" }
+                        { "data": "default", "text": "秋" },
+                        { "data": "winter",  "text": "冬" },
+                        { "data": "spring",  "text": "春" },
+                        { "data": "summer",  "text": "夏" }
                     ],
                     "widget_type": "optionsspinner",
                     "image": "season_start.tex",

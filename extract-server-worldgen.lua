@@ -10,6 +10,7 @@ require("utils/extention")
 require("utils/shell")
 require("utils/file")
 require("utils/json")
+require("utils/dst")
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- define variables
@@ -183,21 +184,6 @@ local localizations = {
     { file = "spanish_mex.po",      code = "es-MX" },
 }
 
----@param key string the key looks like "STRINGS.UI.CUSTOMIZATIONSCREEN.SEASON_START"
-local function getLocalizedString(key)
-    local localized = STRINGS
-    local elems = key:split(".")
-    for _, elem in ipairs(elems) do
-        if elem ~= "STRINGS" then
-            localized = localized[elem]
-        end
-    end
-    if type(localized) == "string" then
-        return localized
-    end
-    return ""
-end
-
 ---@param itemDataList table result of functions GetWorld???Options???() from customize.lua
 ---@param initIndextLv number indent level
 ---@return string Json json data of a master group
@@ -233,7 +219,7 @@ local function generateMasterGroupJson(itemDataList, initIndextLv)
         end
         item.group = nil
         item.grouplabel = nil
-        item.label = getLocalizedString("STRINGS.UI.CUSTOMIZATIONSCREEN."..string.upper(item.name))
+        item.label = GetDSTLocalizedString(STRINGS, "STRINGS.UI.CUSTOMIZATIONSCREEN."..string.upper(item.name))
         itemJsonList[#itemJsonList+1] = ItemToJson(item, 4, true)
     end
     local indent = string.rep(UnitIndent, initIndextLv)
