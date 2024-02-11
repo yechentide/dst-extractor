@@ -213,6 +213,15 @@ local function generateMasterGroupJson(itemDataList, initIndextLv)
         itemJsonList = {}
     end
 
+    local function fixWrongDefaultValue(targetItem)
+        for _, option in ipairs(targetItem.options) do
+            if targetItem.default == option.data then
+                return
+            end
+        end
+        targetItem.default = targetItem.options[1].data
+    end
+
     for _, item in ipairs(itemDataList) do
         if item.group ~= currentGroupID then
             startNextGroup(item.group, item.grouplabel, initIndextLv+1)
@@ -220,6 +229,7 @@ local function generateMasterGroupJson(itemDataList, initIndextLv)
         item.group = nil
         item.grouplabel = nil
         item.label = GetDSTLocalizedString(STRINGS, "STRINGS.UI.CUSTOMIZATIONSCREEN."..string.upper(item.name))
+        fixWrongDefaultValue(item)
         itemJsonList[#itemJsonList+1] = ItemToJson(item, 4, true)
     end
     local indent = string.rep(UnitIndent, initIndextLv)
