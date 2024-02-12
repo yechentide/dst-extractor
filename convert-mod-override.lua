@@ -35,7 +35,13 @@ end
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 
 local config = dofile(overrideFilePath)
-local jsonStr = ItemToJson(config, 0)
+local result = {}
+for k, v in pairs(config) do
+    assert(type(k) == "string")
+    local modID = k:removePrefix("workshop-")
+    result[modID] = v
+end
+local jsonStr = ItemToJson(result, 0)
 
 local outputFilePath = outputDirPath.."/modoverrides.json"
 WriteToFile(outputFilePath, jsonStr)
