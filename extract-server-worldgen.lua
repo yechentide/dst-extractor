@@ -6,7 +6,7 @@ end
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- import util functions
 
-require("utils/extention")
+require("utils/string")
 require("utils/shell")
 require("utils/file")
 require("utils/json")
@@ -27,14 +27,6 @@ local workDirPath = tmpDirPath.."/server-worldgen"
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
-
-local function checkExecutedLocation()
-    if FileExists(currentDirPath.."/extract-server-worldgen.lua", false) then
-        return
-    end
-    print("This script must be executed from working directory")
-    os.exit(1)
-end
 
 local function checkFileExistence()
     if not FileExists(serverRootPath, true) then
@@ -145,7 +137,6 @@ local function getServerVersion()
     return version
 end
 
-checkExecutedLocation()
 checkFileExistence()
 makeDirectories()
 unzipFile()
@@ -304,5 +295,4 @@ local function generateJsonFilesForAllLanguages()
 end
 generateJsonFilesForAllLanguages()
 
-print("Completed!")
-print("Output directory: "..outputDirPath)
+print("Completed! Output directory: "..outputDirPath)

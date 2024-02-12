@@ -3,6 +3,9 @@
 ---@param isDir boolean? true=dir, false=file, nil=both
 ---@return boolean true if target exists
 function FileExists(path, isDir)
+    assert(type(path) == "string")
+    assert(isDir == nil or type(isDir) == "boolean")
+
     local cmd = "[ "
     if isDir == nil then
         cmd = cmd.."-e "
@@ -21,6 +24,10 @@ end
 ---@param hideOutput boolean? true if hide output
 ---@return boolean true if success
 function UnzipFile(zipFilePath, destParentDirPath, hideOutput)
+    assert(type(zipFilePath) == "string")
+    assert(type(destParentDirPath) == "string")
+    assert(hideOutput == nil or type(hideOutput) == "boolean")
+
     if not FileExists(zipFilePath, false) then
         print("Zip file not found in "..zipFilePath)
         return false
@@ -51,6 +58,11 @@ end
 ---@param newName string? new file name
 ---@return boolean true if success
 function CopyFile(srcFilePath, destParentDirPath, isDir, newName)
+    assert(type(srcFilePath) == "string")
+    assert(type(destParentDirPath) == "string")
+    assert(type(isDir) == "boolean")
+    assert(newName == nil or type(newName) == "string")
+
     if not FileExists(srcFilePath) then
         print("Source file not found in "..srcFilePath)
         return false
@@ -79,6 +91,10 @@ end
 ---@param force boolean? true if force remove
 ---@return boolean true if success
 function RemoveFile(filePath, isDir, force)
+    assert(type(filePath) == "string")
+    assert(type(isDir) == "boolean")
+    assert(force == nil or type(force) == "boolean")
+
     if not FileExists(filePath, isDir) then
         print("File not found in "..filePath)
         return true
@@ -100,6 +116,9 @@ end
 ---@param recursive boolean true if recursive
 ---@return boolean true if success
 function MakeDir(path, recursive)
+    assert(type(path) == "string")
+    assert(type(recursive) == "boolean")
+
     local cmd = "mkdir"
     if recursive then
         cmd = cmd.." -p"
@@ -113,6 +132,9 @@ end
 ---@param force boolean? true if force remove
 ---@return boolean true if success
 function RemakeDir(path, force)
+    assert(type(path) == "string")
+    assert(force == nil or type(force) == "boolean")
+
     if FileExists(path, false) then
         print("Expect directory but found file in "..path)
         return false
@@ -130,12 +152,15 @@ end
 ---read contents from a file
 ---@param path string path
 ---@param trim boolean? true if trim
----@return string? string contents
+---@return string string contents
 function ReadFile(path, trim)
+    assert(type(path) == "string")
+    assert(trim == nil or type(trim) == "boolean")
+
     local output, errMsg = io.open(path, "r")
     if output == nil then
         print(errMsg)
-        return nil
+        os.exit(1)
     end
     local content = output:read("a")
     output:close()
@@ -151,6 +176,9 @@ end
 ---@param jsonStr string json
 ---@return boolean true if success
 function WriteToFile(path, jsonStr)
+    assert(type(path) == "string")
+    assert(type(jsonStr) == "string")
+
     local output, errMsg01 = io.open(path, "w+")
     if output == nil then
         print(errMsg01)

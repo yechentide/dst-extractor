@@ -6,6 +6,9 @@ UnitIndent = "    "
 ---@param inArray boolean?
 ---@return string json string in json format
 function ItemToJson(data, indentLv, inArray)
+    assert(type(indentLv) == "number")
+    assert(inArray == nil or type(inArray) == "boolean")
+
     if type(data) == "function" or type(data) == "thread" or type(data) =="userdata" then
         print("Unsupported data: "..type(data))
         os.exit(1)

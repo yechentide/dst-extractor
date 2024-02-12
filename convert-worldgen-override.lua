@@ -15,11 +15,9 @@ require("utils/json")
 
 local shardDirPath = arg[1]
 local overrideFilePath
+local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
+local outputDirPath = arg[2] or currentDirPath.."/output"
 
-if not FileExists(shardDirPath, true) then
-    print("Shard directory not found in "..shardDirPath)
-    os.exit(1)
-end
 if FileExists(shardDirPath.."/worldgenoverride.lua", false) then
     overrideFilePath = shardDirPath.."/worldgenoverride.lua"
 elseif FileExists(shardDirPath.."/leveldataoverride.lua", false) then
@@ -29,8 +27,6 @@ else
     os.exit(1)
 end
 
-local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
-local outputDirPath = arg[2] or currentDirPath.."/output"
 if not FileExists(outputDirPath, true) then
     local ok = MakeDir(outputDirPath, false)
     if not ok then

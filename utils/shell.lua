@@ -14,6 +14,9 @@ end
 ---@param ... string args
 ---@return boolean true if success
 function ExecuteShellCommand(hideOutput, command, ...)
+    assert(type(hideOutput) == "boolean")
+    assert(type(command) == "string")
+
     local cmd = command
     for _, arg in ipairs({...}) do
         cmd = cmd.." \""..arg.."\""
@@ -33,6 +36,8 @@ end
 ---@param ... string args
 ---@return string output
 function ExecuteShellCommandReturnOutput(command, ...)
+    assert(type(command) == "string")
+
     local cmd = command.." "..table.concat({...}, " ").." 2>&1"
     local handle = assert(io.popen(cmd, 'r'))
     local output = assert(handle:read('*a'))
@@ -56,6 +61,8 @@ end
 ---@param command string command
 ---@return boolean true if shell command is available
 function IsShellCommandAvailable(command)
+    assert(type(command) == "string")
+
     local isWhichOk = isWitchCommandAvailable()
     if command == "which" then return isWhichOk end
     if not isWhichOk then

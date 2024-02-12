@@ -8,6 +8,7 @@ end
 
 require("utils/shell")
 require("utils/file")
+require("utils/string")
 require("utils/json")
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
@@ -15,14 +16,14 @@ require("utils/json")
 
 local shardDirPath = arg[1]
 local overrideFilePath = shardDirPath.."/modoverrides.lua"
+local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
+local outputDirPath = arg[2] or currentDirPath.."/output"
 
 if not FileExists(overrideFilePath, false) then
     print("Mod override file not found in "..shardDirPath)
     os.exit(1)
 end
 
-local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
-local outputDirPath = arg[2] or currentDirPath.."/output"
 if not FileExists(outputDirPath, true) then
     local ok = MakeDir(outputDirPath, false)
     if not ok then

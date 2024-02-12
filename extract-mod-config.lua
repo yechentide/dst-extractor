@@ -6,9 +6,9 @@ end
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- import util functions
 
-require("utils/dst")
 require("utils/shell")
 require("utils/file")
+require("utils/string")
 require("utils/json")
 require("mocks/mod-config/mock")
 
@@ -26,10 +26,7 @@ if not FileExists(modInfoPath, false) then
     print("Mod info not found in "..modInfoPath)
     os.exit(1)
 end
-if not FileExists(currentDirPath.."/extract-mod-config.lua", false) then
-    print("This script must be executed from working directory")
-    os.exit(1)
-end
+
 if not FileExists(outputDirPath, true) then
     local ok = MakeDir(outputDirPath, false)
     if not ok then
@@ -44,35 +41,43 @@ end
 ---@param text string
 ---@param alternative string
 ---@return string
-local function escapeString(text, alternative)
-    if text == nil then
+local function escapeOrUseAlternative(text, alternative)
+    assert(type(alternative) == "string")
+    if text == nil or type(text) ~= "string" then
         return alternative
     end
-    local result, _ = text:gsub("\"", "\\\"")
-    result = result:gsub("\t", "")
-    return result
+    return text:escape("\t", "\"")
+end
+
+---get mod id from path
+---@param path string path to mod directory
+---@return string string mod id
+local function getModIdFromPath(path)
+    local lastComponent = path:getLastComponentFromPath()
+    local modID = lastComponent:removePrefix("workshop-")
+    return modID
 end
 
 print("\nLoad mod info from "..modInfoPath)
 dofile(modInfoPath)
 
-local modID = GetModIdFromPath(targetModDirPath)
+local modID = getModIdFromPath(targetModDirPath)
 local modInfo = {
     id = modID,
-    name = escapeString(name, "?"),
-    author = escapeString(author, "?"),
-    version = escapeString(version, "?"),
-    description = escapeString(description, "?"),
+    name = escapeOrUseAlternative(name, "?"),
+    author = escapeOrUseAlternative(author, "?"),
+    version = escapeOrUseAlternative(version, "?"),
+    description = escapeOrUseAlternative(description, "?"),
     configuration_options = configuration_options or {},
 }
 
 for _, item in ipairs(modInfo.configuration_options) do
     if item.hover ~= nil then
-        item.hover = escapeString(item.hover, "?")
+        item.hover = escapeOrUseAlternative(item.hover, "?")
     end
     for _, option in ipairs(item.options) do
         if option.hover ~= nil then
-            option.hover = escapeString(option.hover, "?")
+            option.hover = escapeOrUseAlternative(option.hover, "?")
         end
     end
 end
