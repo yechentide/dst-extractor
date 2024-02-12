@@ -1,0 +1,11 @@
+{
+    "version": 4,
+    "id": "ENDLESS",
+    "location": "forest",
+    "playstyle": "endless",
+    "overrides": {
+        "alternatehunt": "default",
+        "angrybees": "default"
+        // ......
+    }
+}

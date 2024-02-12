@@ -1,0 +1,16 @@
+{
+    "workshop-1111658995": {
+        "enabled": true,
+        "configuration_options": {
+            // Keys and values vary depending on the mod
+            // Key: string
+            // Value: string | number | boolean
+            "key01": false,
+            "key02": "value",
+            "key03": 0.5
+        }
+    },
+    "workshop-1185229307": {
+        // ......
+    }
+}
