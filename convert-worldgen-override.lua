@@ -39,11 +39,11 @@ end
 
 local config = dofile(overrideFilePath)
 local result = {
-    version = config.version,
-    id = config.id,
-    localtion = config.location,
-    playstyle = config.playstyle,
-    overrides = config.overrides,
+    version = config.version or 0,
+    id = config.id or "ENDLESS",
+    localtion = config.location or "forest",
+    playstyle = config.playstyle or "endless",
+    overrides = config.overrides or {},
 }
 local jsonStr = ItemToJson(result, 0)
 
