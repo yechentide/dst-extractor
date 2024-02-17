@@ -8,7 +8,7 @@ end
 
 require("utils/shell")
 require("utils/file")
-require("utils/json")
+local json = require("utils/json")
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
@@ -45,7 +45,7 @@ local result = {
     playstyle = config.playstyle or "endless",
     overrides = config.overrides or {},
 }
-local jsonStr = ItemToJson(result, 0)
+local jsonStr = json.EncodeCompliant(result)
 
 local outputFilePath = outputDirPath.."/worldgenoverride.json"
 WriteToFile(outputFilePath, jsonStr)

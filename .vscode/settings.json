@@ -10,8 +10,16 @@
     "LanguageTranslator",
     "TranslateStringTable",
     "LEVELCATEGORY",
-    "UnitIndent",
     "locale",
-    "folder_name"
+    "folder_name",
+    "modimport",
+    "weighted_random_choice",
+    "env",
+    "kleiloadlua",
+    "name",
+    "author",
+    "version",
+    "description",
+    "configuration_options"
   ]
 }

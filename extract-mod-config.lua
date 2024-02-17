@@ -9,8 +9,8 @@ end
 require("utils/shell")
 require("utils/file")
 require("utils/string")
-require("utils/json")
 require("mocks/mod-config/mock")
+local json = require("utils/json")
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
@@ -37,18 +37,6 @@ end
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 
----escape double quotes and tabs
----@param text string
----@param alternative string
----@return string
-local function escapeOrUseAlternative(text, alternative)
-    assert(type(alternative) == "string")
-    if text == nil or type(text) ~= "string" then
-        return alternative
-    end
-    return text:escape("\t", "\"")
-end
-
 ---get mod id from path
 ---@param path string path to mod directory
 ---@return string string mod id
@@ -64,26 +52,15 @@ dofile(modInfoPath)
 local modID = getModIdFromPath(targetModDirPath)
 local modInfo = {
     id = modID,
-    name = escapeOrUseAlternative(name, "?"),
-    author = escapeOrUseAlternative(author, "?"),
-    version = escapeOrUseAlternative(version, "?"),
-    description = escapeOrUseAlternative(description, "?"),
+    name = name or "?",
+    author = author or "?",
+    version = version or "?",
+    description = description or "",
     configuration_options = configuration_options or {},
 }
 
-for _, item in ipairs(modInfo.configuration_options) do
-    if item.hover ~= nil then
-        item.hover = escapeOrUseAlternative(item.hover, "?")
-    end
-    for _, option in ipairs(item.options) do
-        if option.hover ~= nil then
-            option.hover = escapeOrUseAlternative(option.hover, "?")
-        end
-    end
-end
-
 local outputFilePath = outputDirPath.."/"..locale.."."..modID..".json"
-local jsonStr = ItemToJson(modInfo, 0)
+local jsonStr = json.EncodeCompliant(modInfo)
 WriteToFile(outputFilePath, jsonStr)
 
 print("Completed! Output directory: "..outputDirPath)

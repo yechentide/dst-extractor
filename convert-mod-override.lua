@@ -9,7 +9,7 @@ end
 require("utils/shell")
 require("utils/file")
 require("utils/string")
-require("utils/json")
+local json = require("utils/json")
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
@@ -41,7 +41,7 @@ for k, v in pairs(config) do
     local modID = k:removePrefix("workshop-")
     result[modID] = v
 end
-local jsonStr = ItemToJson(result, 0)
+local jsonStr = json.EncodeCompliant(result)
 
 local outputFilePath = outputDirPath.."/modoverrides.json"
 WriteToFile(outputFilePath, jsonStr)

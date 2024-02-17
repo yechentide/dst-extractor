@@ -9,7 +9,6 @@ end
 require("utils/string")
 require("utils/shell")
 require("utils/file")
-require("utils/json")
 require("utils/dst")
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
@@ -78,7 +77,6 @@ local function copyFilesFromUnzippedDir()
     local _ = CopyFile(unzippedDirPath.."/map/level.lua",                   workDirPath.."/map", false)
     local _ = CopyFile(unzippedDirPath.."/map/levels.lua",                  workDirPath.."/map", false)
     local _ = CopyFile(unzippedDirPath.."/map/locations.lua",               workDirPath.."/map", false)
-    local _ = CopyFile(unzippedDirPath.."/map/resource_substitution.lua",   workDirPath.."/map", false)
     local _ = CopyFile(unzippedDirPath.."/map/settings.lua",                workDirPath.."/map", false)
     local _ = CopyFile(unzippedDirPath.."/map/startlocations.lua",          workDirPath.."/map", false)
     local _ = CopyFile(unzippedDirPath.."/map/tasksets.lua",                workDirPath.."/map", false)
@@ -126,7 +124,6 @@ local function copyMockedFiles()
 
     local _ = CopyFile(mocksDirPath.."/map/tasks.lua",                      workDirPath.."/map", false)
     local _ = CopyFile(mocksDirPath.."/util.lua",                           workDirPath, false)
-    local _ = CopyFile(mocksDirPath.."/mock.lua",                           workDirPath, false)
 end
 
 local function getServerVersion()
@@ -147,14 +144,19 @@ local serverVersion = getServerVersion()
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- main tasks
 
+require("utils/worldgen")
+require("mocks/platform")
+require("mocks/server-worldgen/mock")
+local json = require("utils/json")
+
 package.path = package.path..";"..workDirPath.."/?.lua"
 
-require("mock")
 require("strings")
 require("strict")
 require("constants")
 require("class")
 require("tuning")
+require("translator")
 local customize = require("map/customize")
 
 local localizations = {
@@ -172,58 +174,6 @@ local localizations = {
     { file = "spanish_mex.po",      code = "es-MX" },
 }
 
----@param itemDataList table result of functions GetWorld???Options???() from customize.lua
----@param initIndextLv number indent level
----@return string Json json data of a master group
-local function generateMasterGroupJson(itemDataList, initIndextLv)
-    local itemJsonList = {}             ---@type string[]
-    local groupJsonList = {}            ---@type string[]
-    local currentGroupID = nil          ---@type string?
-    local currentGroupLabel = nil       ---@type string?
-
-    local function startNextGroup(nextGroupID, nextGroupLabel, indentLv)
-        local indent = string.rep(UnitIndent, indentLv)
-        local nextLvIndex = indent..UnitIndent
-
-        if #itemJsonList > 0 then
-            local groupJson = indent.."{\n"
-            groupJson = groupJson..nextLvIndex.."\"name\": \""..currentGroupID.."\",\n"
-            groupJson = groupJson..nextLvIndex.."\"label\": \""..currentGroupLabel.."\",\n"
-            groupJson = groupJson..nextLvIndex.."\"items\": [\n"
-            groupJson = groupJson..table.concat(itemJsonList, ",\n").."\n"
-            groupJson = groupJson..nextLvIndex.."]\n"
-            groupJson = groupJson..indent.."}"
-            groupJsonList[#groupJsonList+1] = groupJson
-        end
-
-        currentGroupID = nextGroupID
-        currentGroupLabel = nextGroupLabel
-        itemJsonList = {}
-    end
-
-    local function fixWrongDefaultValue(targetItem)
-        for _, option in ipairs(targetItem.options) do
-            if targetItem.default == option.data then
-                return
-            end
-        end
-        targetItem.default = targetItem.options[1].data
-    end
-
-    for _, item in ipairs(itemDataList) do
-        if item.group ~= currentGroupID then
-            startNextGroup(item.group, item.grouplabel, initIndextLv+1)
-        end
-        item.group = nil
-        item.grouplabel = nil
-        item.label = GetDSTLocalizedString(STRINGS, "STRINGS.UI.CUSTOMIZATIONSCREEN."..string.upper(item.name))
-        fixWrongDefaultValue(item)
-        itemJsonList[#itemJsonList+1] = ItemToJson(item, 4, true)
-    end
-    local indent = string.rep(UnitIndent, initIndextLv)
-    return "[\n"..table.concat(groupJsonList, ",\n").."\n"..indent.."]"
-end
-
 ---@alias LocationType
 ---| "forest"
 ---| "cave"
@@ -235,27 +185,23 @@ end
 ---@param isMasterWorld boolean
 ---@param langCode string?
 ---@return string Json json data of target location
-local function generateClusterJson(location, isMasterWorld, langCode)
-    local gen = customize.GetWorldGenOptions(location, isMasterWorld)
-    local set = customize.GetWorldSettingsOptions(location, isMasterWorld)
-
-    local masterGroupJsonList = {
-        UnitIndent.."\"worldgen_group\": "..generateMasterGroupJson(gen, 1),
-        UnitIndent.."\"worldsettings_group\": "..generateMasterGroupJson(set, 1),
-    }
-
-    local json = "{\n"
+local function generateJsonString(location, isMasterWorld, langCode)
+    local jsonObj = {}
     if serverVersion ~= nil and serverVersion ~= "" then
-        json = json..UnitIndent.."\"version\": \""..serverVersion.."\",\n"
+        jsonObj.version = serverVersion
     end
     if langCode ~= nil then
-        json = json..UnitIndent.."\"language\": \""..langCode.."\",\n"
+        jsonObj.language = langCode
     end
-    json = json..UnitIndent.."\"location\": \""..location.."\",\n"
-    json = json..UnitIndent.."\"is_master\": "..tostring(isMasterWorld)..",\n"
-    json = json..table.concat(masterGroupJsonList, ",\n").."\n"
-    json = json.."}\n"
-    return json
+    jsonObj.location = location
+    jsonObj.is_master = isMasterWorld
+
+    local gen = customize.GetWorldGenOptions(location, isMasterWorld)
+    local set = customize.GetWorldSettingsOptions(location, isMasterWorld)
+    jsonObj.worldgen_group = GenerateMasterGroupJsonObject(gen)
+    jsonObj.worldsettings_group = GenerateMasterGroupJsonObject(set)
+
+    return json.EncodeCompliant(jsonObj)
 end
 
 local function generateJsonFilesForLanguage(langCode)
@@ -269,30 +215,22 @@ local function generateJsonFilesForLanguage(langCode)
     for _, v in ipairs(variation) do
         local isMasterStr = v.isMasterWorld and ".master" or ""
         local path = outputDirPath.."/"..langCode.."."..v.location..isMasterStr..".json"
-        local jsonData = generateClusterJson(v.location, v.isMasterWorld, langCode)
-        WriteToFile(path, jsonData)
+        local jsonStr = generateJsonString(v.location, v.isMasterWorld, langCode)
+        WriteToFile(path, jsonStr)
     end
 end
 
-require("translator")
-
-local function changeLanguage(poFileName, langCode)
-    local filePath = workDirPath.."/languages/"..poFileName
-    LanguageTranslator:LoadPOFile(filePath, langCode)
+generateJsonFilesForLanguage("en")
+for _, lang in ipairs(localizations) do
+    local filePath = workDirPath.."/languages/"..lang.file
+    LanguageTranslator:LoadPOFile(filePath, lang.code)
     TranslateStringTable(STRINGS)
-end
 
-local function generateJsonFilesForAllLanguages()
-    generateJsonFilesForLanguage("en")
-    for _, lang in ipairs(localizations) do
-        changeLanguage(lang.file, lang.code)
-        package.loaded["map/customize"] = nil
-        customize = require("map/customize")
+    package.loaded["map/customize"] = nil
+    customize = require("map/customize")
 
-        local langCode = lang.code
-        generateJsonFilesForLanguage(langCode)
-    end
+    local langCode = lang.code
+    generateJsonFilesForLanguage(langCode)
 end
-generateJsonFilesForAllLanguages()
 
 print("Completed! Output directory: "..outputDirPath)
