@@ -68,20 +68,6 @@ local base = _G
 -----------------------------------------------------------------------------
 module("json")
 
--- Public functions
-
--- Private functions
--- local decode_scanArray
--- local decode_scanComment
--- local decode_scanConstant
--- local decode_scanNumber
--- local decode_scanObject
--- local decode_scanString
--- local decode_scanWhitespace
--- local encodeString
--- local isArray
--- local isEncodable
-
 -----------------------------------------------------------------------------
 -- PUBLIC FUNCTIONS
 -----------------------------------------------------------------------------
@@ -95,6 +81,43 @@ local function encodeStringCompliant(s)
   s = string.gsub(s,'\t','\\t')
   s = string.gsub(s,'\r','\\r')
   return s
+end
+
+--- Determines whether the given Lua object / table / variable can be JSON encoded. The only
+-- types that are JSON encodable are: string, boolean, number, nil, table and json.null.
+-- In this implementation, all other types are ignored.
+-- @param o The object to examine.
+-- @return boolean True if the object should be JSON encoded, false if it should be ignored.
+local function isEncodable(o)
+  local t = base.type(o)
+  return (t=='string' or t=='boolean' or t=='number' or t=='nil' or t=='table') or (t=='function' and o== nil)
+end
+
+-- Determines whether the given Lua type is an array or a table / dictionary.
+-- We consider any table an array if it has indexes 1..n for its n items, and no
+-- other data in the table.
+-- I think this method is currently a little 'flaky', but can't think of a good way around it yet...
+-- @param t The table to evaluate as an array
+-- @return boolean, number True if the table can be represented as an array, false otherwise. If true,
+-- the second returned value is the maximum
+-- number of indexed elements in the array.
+local function isArray(t)
+  -- Next we count all the elements, ensuring that any non-indexed elements are not-encodable
+  -- (with the possible exception of 'n')
+  local maxIndex = 0
+  for k,v in base.pairs(t) do
+    if (base.type(k)=='number' and math.floor(k)==k and 1<=k) then	-- k,v is an indexed pair
+      if (not isEncodable(v)) then return false end	-- All array elements must be encodable
+      maxIndex = math.max(maxIndex,k)
+    else
+      if (k=='n') then
+        if v ~= #t then return false end  -- False if n does not hold the number of elements
+      else -- Else of (k=='n')
+        if isEncodable(v) then return false end
+      end  -- End of (k~='n')
+    end -- End of k,v not an indexed pair
+  end  -- End of loop across all pairs
+  return true, maxIndex
 end
 
 -- Use this function only if you are sending data out to a web service or some other external system. The game will not be able to decode this data.
@@ -149,57 +172,6 @@ function EncodeCompliant(v)
   if not (false) then
     base.tracked_assert(false,'encode_compliant attempt to encode unsupported type ' .. vtype .. ':' .. base.tostring(v))
   end
-end
-
---- Encodes a string to be JSON-compatible.
--- This just involves back-quoting inverted commas, back-quotes and newlines, I think ;-)
--- @param s The string to return as a JSON encoded (i.e. backquoted string)
--- @return The string appropriately escaped.
--- function encodeString(s)
---   s = string.gsub(s,'\\','\\\\')
---   s = string.gsub(s,'"','\\"')
---   s = string.gsub(s,"'","\\'")
---   s = string.gsub(s,'\n','\\n')
---   s = string.gsub(s,'\t','\\t')
---   s = string.gsub(s,'\r','\\r')
---   return s
--- end
-
--- Determines whether the given Lua type is an array or a table / dictionary.
--- We consider any table an array if it has indexes 1..n for its n items, and no
--- other data in the table.
--- I think this method is currently a little 'flaky', but can't think of a good way around it yet...
--- @param t The table to evaluate as an array
--- @return boolean, number True if the table can be represented as an array, false otherwise. If true,
--- the second returned value is the maximum
--- number of indexed elements in the array.
-function isArray(t)
-  -- Next we count all the elements, ensuring that any non-indexed elements are not-encodable
-  -- (with the possible exception of 'n')
-  local maxIndex = 0
-  for k,v in base.pairs(t) do
-    if (base.type(k)=='number' and math.floor(k)==k and 1<=k) then	-- k,v is an indexed pair
-      if (not isEncodable(v)) then return false end	-- All array elements must be encodable
-      maxIndex = math.max(maxIndex,k)
-    else
-      if (k=='n') then
-        if v ~= #t then return false end  -- False if n does not hold the number of elements
-      else -- Else of (k=='n')
-        if isEncodable(v) then return false end
-      end  -- End of (k~='n')
-    end -- End of k,v not an indexed pair
-  end  -- End of loop across all pairs
-  return true, maxIndex
-end
-
---- Determines whether the given Lua object / table / variable can be JSON encoded. The only
--- types that are JSON encodable are: string, boolean, number, nil, table and json.null.
--- In this implementation, all other types are ignored.
--- @param o The object to examine.
--- @return boolean True if the object should be JSON encoded, false if it should be ignored.
-function isEncodable(o)
-  local t = base.type(o)
-  return (t=='string' or t=='boolean' or t=='number' or t=='nil' or t=='table') or (t=='function' and o== nil)
 end
 
 return {
