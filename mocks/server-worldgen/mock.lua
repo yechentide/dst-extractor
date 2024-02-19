@@ -2,7 +2,7 @@
 -- Mock functions
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 
-BRANCH = ""
+BRANCH = "prod"
 
 ModManager = {
     currentlyloadingmod = nil
