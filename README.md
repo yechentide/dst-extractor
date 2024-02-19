@@ -1,55 +1,74 @@
-# dst-worldgen
+# dst-extractor
+
+[简体中文(Simplified Chinese)](./docs/README.zh-CN.md)
+[日本語(Japanese)](./docs/README.ja.md)
+
+## What this repository can do
+
+Those scripts let you extract lua data from DST Dedicated Server files or safe data and convert to JSON.
+To run the scripts in this repository, use `lua5.1` or `luajit`.
+
+1. `extract-worldgen-vanilla`: Extract settings used during world generation from **server source code**
+2. `extract-mod-config`: Extract basic information and configuration items of a mod from **modinfo.lua**
+3. `convert-worldgen-override`: Extract world settings from **worldgenoverride.lua** or **leveldataoverride.lua**
+4. `convert-mod-override`: Extract mod settings from **modoverrides.lua**
+
+## ToDo
+
+- [ ] `extract-worldgen-mod`: Extract settings added during world generation by mods (such as `Island Adventures` and `Uncompromising Mode`)
 
 ## Usage
 
-This script can extract the configurations used in `worldgenoverride.lua` from DST server files and output them as JSON files.  
-Based on the combination of world type (forest/cave) and whether it's the main world or not, four JSON files will be generated for each language supported by the server.  
-To execute the script, `unzip` and `lua` (or `luajit`) are required.
+### extract-worldgen-vanilla
+
+- `unzip` command is required.
+- The default value for `output_dir_path` is `./output/worldgen`.
+- [Output JSON format](./docs/json-templates/worldgen-vanilla.jsonc)
 
 ```bash
-# lua extract-server-worldgen.lua ${path_to_dst_server_dir}
-# lua extract-server-worldgen.lua ${path_to_dst_server_dir} ${path_to_output_folder}
-lua extract-server-worldgen.lua /root/server /tmp/output
+lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir}
+lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} ${output_dir_path}
 
-# path_to_output_folder/
-#     en.forest.master.json
-#     en.forest.json
-#     en.cave.master.json
-#     en.cave.json
+# if the path of scripts.zip is /root/server/data/databundles/scripts.zip
+lua extract-worldgen-vanilla.lua /root/server
+
+# output_dir_path/
+# ├── ......
+# ├── en.forest.master.json
+# ├── en.cave.master.json
+# ├── en.forest.json
+# └── en.cave.json
 ```
 
-## 用法
+### extract-mod-config
 
-这个脚本可以从DST服务端文件里面提取出`worldgenoverride.lua`里所用到的配置, 并输出为JSON文件。  
-根据世界类型(forest/cave), 以及是否为主世界的组合，将会为服务端支持的所有语言各生成4个JSON文件。  
-执行脚本需要`unzip`和`lua` (或者`luajit`)。
+- The default value for `output_dir_path` is `./output/modconfig`.
+- The default value for `lang_code` is `en`.
+    - You can specify other language codes, but if the mod is not supported, the output will be english, maybe.
+- [Output JSON format](./docs/json-templates/mod-config.jsonc)
 
 ```bash
-# lua extract-server-worldgen.lua ${到DST服务端文件夹的路径}
-# lua extract-server-worldgen.lua ${到DST服务端文件夹的路径} ${输出文件夹的路径}
-lua extract-server-worldgen.lua /root/server /tmp/output
-
-# 输出文件夹的路径/
-#     zh-CN.forest.master.json
-#     zh-CN.forest.json
-#     zh-CN.cave.master.json
-#     zh-CN.cave.json
+lua extract-mod-config.lua ${path_to_target_mod_dir}
+lua extract-mod-config.lua ${path_to_target_mod_dir} ${output_dir_path}
+lua extract-mod-config.lua ${path_to_target_mod_dir} ${output_dir_path} ${lang_code}
 ```
 
-## 使い方
+### convert-worldgen-override
 
-このスクリプトはDSTサーバーファイルから`worldgenoverride.lua`で使用される設定を抽出し、JSONファイルとして出力することができます。  
-ワールドのタイプ（forest/cave）とメインワールドかどうかの組み合わせに基づいて、サーバーがサポートするすべての言語で、それぞれ4つのJSONファイルが生成されます。  
-スクリプトを実行するには`unzip`と`lua` (または`luajit`) が必要です。
+- The default value for `output_dir_path` is `./output`.
+- [Output JSON format](./docs/json-templates/worldgen-override.jsonc)
 
 ```bash
-# lua extract-server-worldgen.lua ${DSTサーバディレクトリへのパス}
-# lua extract-server-worldgen.lua ${DSTサーバディレクトリへのパス} ${出力フォルダへのパス}
-lua extract-server-worldgen.lua /root/server /tmp/output
+lua convert-worldgen-override.lua ${path_to_shard_dir}
+lua convert-worldgen-override.lua ${path_to_shard_dir} ${output_dir_path}
+```
 
-# 出力フォルダへのパス/
-#     ja.forest.master.json
-#     ja.forest.json
-#     ja.cave.master.json
-#     ja.cave.json
+### convert-mod-override
+
+- The default value for `output_dir_path` is `./output`.
+- [Output JSON format](./docs/json-templates/mod-override.jsonc)
+
+```bash
+lua convert-mod-override.lua ${path_to_shard_dir}
+lua convert-mod-override.lua ${path_to_shard_dir} ${output_dir_path}
 ```
