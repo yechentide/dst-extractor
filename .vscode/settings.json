@@ -20,6 +20,9 @@
     "author",
     "version",
     "description",
-    "configuration_options"
+    "configuration_options",
+    "TUNING",
+    "Class",
+    "CreateEnvironment"
   ]
 }
