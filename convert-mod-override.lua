@@ -1,5 +1,5 @@
 if #arg == 0 then
-    print("Usage: lua extract-mod-override.lua ${path_to_shard_dir} <output_dir_path>")
+    print("Usage: lua convert-mod-override.lua ${path_to_shard_dir} <output_dir_path>")
     os.exit(1)
 end
 
