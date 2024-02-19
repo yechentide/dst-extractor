@@ -1,5 +1,5 @@
 if #arg == 0 then
-    print("Usage: lua extract-server-worldgen.lua ${path_to_dst_server_dir} <output_dir_path>")
+    print("Usage: lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} <output_dir_path>")
     os.exit(1)
 end
 
@@ -22,7 +22,7 @@ local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
 local outputDirPath = arg[2] or currentDirPath.."/output/worldgen"
 
 local tmpDirPath = "/tmp/dst-extract"
-local workDirPath = tmpDirPath.."/server-worldgen"
+local workDirPath = tmpDirPath.."/worldgen-vanilla"
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
@@ -119,7 +119,7 @@ local function copyFilesFromUnzippedDir()
 end
 
 local function copyMockedFiles()
-    local mocksDirPath = currentDirPath.."/mocks/server-worldgen"
+    local mocksDirPath = currentDirPath.."/mocks/worldgen-vanilla"
     print("\nCopy mocked files from "..currentDirPath.." to "..workDirPath)
 
     local _ = CopyFile(mocksDirPath.."/map/tasks.lua",                      workDirPath.."/map", false)
@@ -146,7 +146,7 @@ local serverVersion = getServerVersion()
 
 require("utils/worldgen")
 require("mocks/platform")
-require("mocks/server-worldgen/mock")
+require("mocks/worldgen-vanilla/mock")
 local json = require("utils/json")
 
 package.path = package.path..";"..workDirPath.."/?.lua"
