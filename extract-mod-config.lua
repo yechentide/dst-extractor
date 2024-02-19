@@ -1,5 +1,5 @@
 if #arg == 0 then
-    print("Usage: lua extract-mod-config.lua ${path_to_target_mod_dir} <lang_code> <output_dir_path>")
+    print("Usage: lua extract-mod-config.lua ${path_to_target_mod_dir} <output_dir_path> <lang_code>")
     os.exit(1)
 end
 
@@ -19,8 +19,8 @@ local targetModDirPath = arg[1]
 local modInfoPath = targetModDirPath.."/modinfo.lua"
 
 local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
-local outputDirPath = arg[3] or currentDirPath.."/output/modconfig"
-locale = arg[2] or "en"
+local outputDirPath = arg[2] or currentDirPath.."/output/modconfig"
+locale = arg[3] or "en"
 
 if not FileExists(modInfoPath, false) then
     print("Mod info not found in "..modInfoPath)
