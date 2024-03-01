@@ -35,11 +35,11 @@ end
 function string.getLastComponentFromPath(path)
     assert(type(path) == "string")
 
-    local i = path:match(".+()/")
-    if i then
-        return path:sub(i + 1)
+    local components = {}
+    for component in path:gmatch("[^/]+") do
+        table.insert(components, component)
     end
-    return path
+    return components[#components]
 end
 
 ---remove prefix string
