@@ -1,6 +1,22 @@
-if #arg == 0 then
-    print("Usage: lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} <output_dir_path>")
+local function printUsageAndExit()
+    print("Usage:")
+    print("    lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} <output_dir_path>")
+    print("    lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir} <output_dir_path>")
     os.exit(1)
+end
+
+if #arg == 0 then
+    printUsageAndExit()
+end
+
+local needUnzip = true
+local serverVersion = "0"
+if tonumber(arg[1]) ~= nil then
+    needUnzip = false
+    serverVersion = arg[1]
+    if #arg == 1 then
+        printUsageAndExit()
+    end
 end
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
@@ -16,42 +32,53 @@ require("utils/dst")
 
 local serverRootPath = arg[1]
 local scriptZipPath = serverRootPath.."/data/databundles/scripts.zip"
-local versionFilePath = serverRootPath.."/version.txt"
 
 local currentDirPath = ExecuteShellCommandReturnOutput("pwd")
-local outputDirPath = arg[2] or currentDirPath.."/output/worldgen"
+local outputDirPath = currentDirPath.."/output/worldgen"
+if needUnzip then
+    if arg[2] then
+        outputDirPath = arg[2]
+    end
+else
+    if arg[3] then
+        outputDirPath = arg[3]
+    end
+end
 
 local tmpDirPath = "/tmp/dst-extract"
 local workDirPath = tmpDirPath.."/worldgen-vanilla"
 
+local unzippedDirPath = tmpDirPath.."/scripts"
+if not needUnzip then
+    unzippedDirPath = arg[2]
+    print("Use unzipped dir: "..unzippedDirPath)
+end
+
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- prepare
 
-local function checkFileExistence()
-    if not FileExists(serverRootPath, true) then
-        print("Server root path not found in "..serverRootPath)
-        os.exit(1)
-    end
-    if not FileExists(scriptZipPath, false) then
-        print("Script zip not found in "..scriptZipPath)
-        os.exit(1)
-    end
-end
-
 local function makeDirectories()
-    local ok = RemakeDir(outputDirPath, false)
-    if not ok then
-        print("Failed to create output directory in "..outputDirPath)
-        os.exit(1)
-    end
-    print("Created output directory in "..outputDirPath)
-    ok = RemakeDir(tmpDirPath, false)
+    local ok = RemakeDir(tmpDirPath, false)
     if not ok then
         print("Failed to create temporary directory in "..tmpDirPath)
         os.exit(1)
     end
     print("Created temporary directory in "..tmpDirPath)
     local _ = MakeDir(workDirPath, false)
+
+    ok = RemakeDir(outputDirPath, false)
+    if not ok then
+        print("Failed to create output directory in "..outputDirPath)
+        os.exit(1)
+    end
+    print("Created output directory in "..outputDirPath)
+end
+
+local function checkZipFileExistence()
+    if not FileExists(scriptZipPath, false) then
+        print("Script zip not found in "..scriptZipPath)
+        os.exit(1)
+    end
 end
 
 local function unzipFile()
@@ -64,8 +91,15 @@ local function unzipFile()
     print("Completed!")
 end
 
+local function getServerVersion()
+    local version = ReadFile(serverRootPath.."/version.txt", true)
+    if #version == 0 then
+        return "0"
+    end
+    return version
+end
+
 local function copyFilesFromUnzippedDir()
-    local unzippedDirPath = tmpDirPath.."/scripts"
     print("\nCopy files from "..unzippedDirPath.." to "..workDirPath)
 
     local _ = CopyFile(unzippedDirPath.."/languages", workDirPath, true)
@@ -126,20 +160,14 @@ local function copyMockedFiles()
     local _ = CopyFile(mocksDirPath.."/util.lua",                           workDirPath, false)
 end
 
-local function getServerVersion()
-    local version = ReadFile(versionFilePath, true)
-    if #version == 0 then
-        return "0"
-    end
-    return version
-end
-
-checkFileExistence()
 makeDirectories()
-unzipFile()
+if needUnzip then
+    checkZipFileExistence()
+    unzipFile()
+    serverVersion = getServerVersion()
+end
 copyFilesFromUnzippedDir()
 copyMockedFiles()
-local serverVersion = getServerVersion()
 
 -- ---------- ---------- ---------- ---------- ---------- ---------- --
 -- main tasks
