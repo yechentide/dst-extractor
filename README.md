@@ -23,11 +23,15 @@ To run the scripts in this repository, use `lua5.1` or `luajit`.
 
 - `unzip` command is required.
 - The default value for `output_dir_path` is `./output/worldgen`.
+- `${dst_version}` must be a number. For example `593204`.
+    - The version number is stored in `${path_to_dst_server_dir}/version.txt`.
 - [Output JSON format](./docs/json-templates/worldgen-vanilla.jsonc)
 
 ```bash
 lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir}
 lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} ${output_dir_path}
+lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir}
+lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir} ${output_dir_path}
 
 # if the path of scripts.zip is /root/server/data/databundles/scripts.zip
 lua extract-worldgen-vanilla.lua /root/server

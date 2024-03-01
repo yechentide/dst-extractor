@@ -20,11 +20,15 @@
 
 - 需要用到`unzip`命令。
 - `output_dir_path`的默认值为`./output/worldgen`。
+- `${dst_version}`必须是数字。例如`593204`。
+    - 版本号存储在`${path_to_dst_server_dir}/version.txt`中。
 - [输出的JSON结构](./json-templates/worldgen-vanilla.jsonc)
 
 ```bash
 lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir}
 lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} ${output_dir_path}
+lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir}
+lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir} ${output_dir_path}
 
 # scripts.zip 的路径为 /root/server/data/databundles/scripts.zip 的话
 lua extract-worldgen-vanilla.lua /root/server

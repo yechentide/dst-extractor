@@ -20,11 +20,15 @@
 
 - `unzip`コマンドが必要です。
 - `output_dir_path`のデフォルト値は`./output/worldgen`です。
+- `${dst_version}`は数値である必要があります。たとえば、`593204`。
+    - バージョン番号は`${path_to_dst_server_dir}/version.txt`に保存されています。
 - [出力JSONのフォーマット](./json-templates/worldgen-vanilla.jsonc)
 
 ```bash
 lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir}
 lua extract-worldgen-vanilla.lua ${path_to_dst_server_dir} ${output_dir_path}
+lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir}
+lua extract-worldgen-vanilla.lua ${dst_version} ${path_to_unzipped_scripts_dir} ${output_dir_path}
 
 # scripts.zip のパスが /root/server/data/databundles/scripts.zip の場合
 lua extract-worldgen-vanilla.lua /root/server
